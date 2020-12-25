@@ -19,22 +19,16 @@ fly_time = timedelta(microseconds=0)
 def press_times(flag, num, key=""):
     global time, inter_time, press_time, fly_time
 
-    if key != "backspace":
-
-        if flag == 1:
-            time = datetime.now()
-
-            inter_time = datetime.now() - inter_time
-            fly_time = press_time + inter_time
-            return press_time, inter_time, fly_time
-
-
-        elif flag == 0:
-            press_time = datetime.now() - time
-            time = datetime.now()
-            inter_time = datetime.now()
-    else:
-        return "0\t" * 3
+    if flag == 1:
+        time = datetime.now()
+        inter_time = datetime.now() - inter_time
+        fly_time = press_time + inter_time
+        return press_time, inter_time, fly_time
+    elif flag == 0:
+        press_time = datetime.now() - time
+        time = datetime.now()
+        inter_time = datetime.now()
+    
         
     
 

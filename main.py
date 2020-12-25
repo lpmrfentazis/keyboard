@@ -3,42 +3,55 @@
 from tests import sleep, timeit, press_times
 from pynput import keyboard
 
-flag = 0
-num = 0
 
-class user:
+class User:
     speed = 0   # per minute
-    Interval = []
-    Pess = []
+    interval = []
+    press = []
     fly = []
 
-    def go_average():
-        pass
+    press_average = 0
+    interval_average = 0
+    fly_average = 0
+
+    def go_average(self):
+        self.press_average = sum(self.press) / len(self.press)
+        self.interval_average = sum(self.interval) / len(self.interval)
+        self.fly_average = sum(self.fly) / len(self.fly)
+
+
+flag = 0
+num = 0
+user = User()
 
 
 def on_press(key):
-    global flag, num
+    global flag, num, user
 
-    if key == keyboard.Key.backspace:
-        num-=1
+    if key == keyboard.Key.esc:
+        user.go_average()
+        print("press time", "inter time", "fly time", "num", sep="\t")
+        print(user.press_average + "µs", user.interval_average + "µs", user.fly_average + "µs", sep="\t")
+        return False
 
     else:
-        num+=1
 
         if flag == 1:
             press_times(2, num)
         else: 
+            num+=1
             flag = 1
-            if key == keyboard.Key.backspace:
-                answer = press_times(flag, num, "backspace")
-                print()
-                print("press time", "inter time", "fly time", "num", sep="\t")
-                print(*answer, "\t", num)
-            else:
-                answer = press_times(flag, num)
-                print()
-                print("press time", "inter time", "fly time", "num", sep="\t")
-                print(*answer, num, sep="\t")
+            answer = press_times(flag, num)
+            print()
+            print("press time", "inter time", "fly time", "num", sep="\t")
+            print(*answer, num, sep="\t")
+
+            if num != 1:
+                user.press.append(answer[0].seconds * 10**6 + answer[0].microseconds)
+                user.interval.append(answer[1].seconds * 10**6 + answer[1].microseconds)
+                user.fly.append(answer[2].seconds * 10**6 + answer[2].microseconds)
+            
+
 
 
 
@@ -48,17 +61,10 @@ def on_release(key):
     flag = 0
     press_times(0, num)
 
-
-    
-
     try:
         print(key.char)
     except:
         pass
-
-    if key == keyboard.Key.esc:
-        # Stop listener
-        return False
 
 
 def main():
@@ -69,4 +75,6 @@ def main():
     
 
 if __name__ == "__main__":
+    user = User()
+
     main()
