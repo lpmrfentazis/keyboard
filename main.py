@@ -29,9 +29,10 @@ def on_press(key):
     global flag, num, user
 
     if key == keyboard.Key.esc:
+        print("\n", "Collected statistics:\n")
         user.go_average()
-        print("press time", "inter time", "fly time", "num", sep="\t")
-        print(user.press_average + "µs", user.interval_average + "µs", user.fly_average + "µs", sep="\t")
+        print("press time", "inter time", "fly time", sep="\t")
+        print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
         return False
 
     else:
