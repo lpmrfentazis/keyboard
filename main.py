@@ -4,6 +4,9 @@ from tests import sleep, timeit, press_times
 from pynput import keyboard
 
 
+menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login"
+
+
 class User:
     speed = 0   # per minute
     interval = []
@@ -69,9 +72,25 @@ def on_release(key):
 
 
 def main():
-    with keyboard.Listener(on_press= on_press,
-                           on_release= on_release) as listener:
-        listener.join()
+    global menu
+    print(menu)
+
+    while 1:
+        key = input()
+
+        if key == "0":
+            with keyboard.Listener(on_press= on_press,
+                                   on_release= on_release) as listener:
+                listener.join()
+
+        if key == "1":
+            with keyboard.Listener(on_press= on_press,
+                                   on_release= on_release) as listener:
+                listener.join()
+
+        else:
+            print("Unknown command\n")
+            print(menu)
 
     
 
