@@ -56,9 +56,6 @@ def on_press(key):
                 user.fly.append(answer[2].seconds * 10**6 + answer[2].microseconds)
             
 
-
-
-
 def on_release(key):
     global flag
     
