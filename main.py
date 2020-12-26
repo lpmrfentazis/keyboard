@@ -21,7 +21,7 @@ class User:
         self.press_average = sum(self.press) / len(self.press)
         self.interval_average = sum(self.interval) / len(self.interval)
         self.fly_average = sum(self.fly) / len(self.fly)
-
+#d
 
 flag = 0
 num = 0
