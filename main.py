@@ -4,7 +4,7 @@ from tests import sleep, timeit, press_times
 from pynput import keyboard
 
 
-menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login"
+menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login\n" + "2 - Test"
 mode = 3
 
 
@@ -66,7 +66,7 @@ def check_username(username):
 
     for files in listdir("users/"):
             if username in files:
-                print("The name is already in use")
+                
                 return 1
     return 0
 
@@ -80,6 +80,7 @@ def create_user(user):
     print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
 
     while check_username(temp) == 1:
+        print("The name is already in use")
         print("\nTo cancel, enter 0\n")
         temp = input("Enter username: ")
         if temp == "0":
@@ -132,6 +133,16 @@ def login(user):
             user.to_empty()
             return False
 
+
+def test_mode(user):
+    user.go_average()
+    print("\n", "Collected statistics:\n")
+    print("press time", "inter time", "fly time", sep="\t")
+    print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
+    
+    return False
+
+
 def on_press(key):
     global flag, num, user, mode
     
@@ -141,6 +152,8 @@ def on_press(key):
             return create_user(user)
         if mode == 1:
             return login(user)
+        if mode == 2:
+            return test_mode(user)
 
     else:
 
@@ -186,7 +199,14 @@ def main():
                 listener.join()
 
         if key == "1":
+            print("Enter ~50 symbols")
             mode = 1
+            with keyboard.Listener(on_press= on_press,
+                                   on_release= on_release) as listener:
+                listener.join()
+
+        if key == "2":
+            mode = 2
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
