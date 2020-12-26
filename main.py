@@ -8,6 +8,8 @@ menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login"
 
 
 class User:
+    user_name = ""
+    user_password = ""
     speed = 0   # per minute
     interval = []
     press = []
@@ -21,7 +23,34 @@ class User:
         self.press_average = sum(self.press) / len(self.press)
         self.interval_average = sum(self.interval) / len(self.interval)
         self.fly_average = sum(self.fly) / len(self.fly)
-#d
+    
+    def to_empty(self):
+        self.press = []
+        self.interval = []
+        self.fly = []
+
+        self.press_average = 0
+        self.interval_average = 0
+        self.fly_average = 0
+
+    def save_user(self):
+        with open("users/{}.txt".format(self.user_name), "w") as f:
+            f.write(self.user_name + "\n")
+            f.write(self.user_password)
+
+
+def check_username(username):
+    from os import listdir
+
+    if username == "": 
+        print("The username cannot be empty")
+        return 1
+
+    for files in listdir("users/"):
+            if username in files:
+                print("The name is already in use")
+                return 1
+    return 0
 
 flag = 0
 num = 0
@@ -30,13 +59,38 @@ user = User()
 
 def on_press(key):
     global flag, num, user
+    temp = ""
 
     if key == keyboard.Key.esc:
-        print("\n", "Collected statistics:\n")
         user.go_average()
+        print("\n", "Collected statistics:\n")
         print("press time", "inter time", "fly time", sep="\t")
         print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
-        return False
+
+        while check_username(temp) == 1:
+            print("\nTo cancel, enter 0")
+            temp = input("Enter username: ")
+
+            if temp == "0":
+                user.to_empty()
+                return False 
+        else:
+            user.user_name = temp
+            temp = ""
+
+            while temp == "":
+                print("\nTo cancel, enter 0")
+                print("The password cannot be empty")
+                temp = input("Enter user password: ")
+
+                if temp == "0":
+                    user.to_empty()
+                    return False
+            else:
+                user.user_password = temp
+                user.save_user()
+
+                return False
 
     else:
 
@@ -46,8 +100,8 @@ def on_press(key):
             num+=1
             flag = 1
             answer = press_times(flag, num)
-            print()
-            print("press time", "inter time", "fly time", "num", sep="\t")
+
+            print("\npress time", "inter time", "fly time", "num", sep="\t")
             print(*answer, num, sep="\t")
 
             if num != 1:
@@ -58,7 +112,6 @@ def on_press(key):
 
 def on_release(key):
     global flag
-    
     flag = 0
     press_times(0, num)
 
@@ -76,6 +129,7 @@ def main():
         key = input()
 
         if key == "0":
+            print("Enter ~50 symbols")
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
