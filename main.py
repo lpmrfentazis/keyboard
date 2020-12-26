@@ -21,9 +21,9 @@ class User:
 
     def go_average(self):
         #print(self.press)
-        self.press_average = sum(self.press) / len(self.press)
-        self.interval_average = sum(self.interval) / len(self.interval)
-        self.fly_average = sum(self.fly) / len(self.fly)
+        self.press_average = round( sum(self.press) / len(self.press), 1)
+        self.interval_average = round( sum(self.interval) / len(self.interval), 1)
+        self.fly_average = round( sum(self.fly) / len(self.fly), 1)
     
     def to_empty(self):
         self.press = []
@@ -47,7 +47,7 @@ class User:
         with open("users/{}.txt".format(self.user_name)) as f:
             lines = f.readlines()
 
-            if (lines[1].split("\n")[0] == self.user_password):
+            if (lines[1].split("\n")[0] == self.user_password) and (abs(self.press_average - float(lines[2].split("\n")[0])) < 10000):
                 return 1
             else:
                 return 0
@@ -191,11 +191,11 @@ def on_release(key):
     global flag
     flag = 0
     press_times(0, num)
-
+    """
     try:
         print(key.char)
     except:
-        pass
+        pass"""
 
 
 def main():
