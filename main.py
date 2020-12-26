@@ -5,12 +5,12 @@ from pynput import keyboard
 
 
 menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login"
+mode = 3
 
 
 class User:
     user_name = ""
     user_password = ""
-    speed = 0   # per minute
     interval = []
     press = []
     fly = []
@@ -36,7 +36,25 @@ class User:
     def save_user(self):
         with open("users/{}.txt".format(self.user_name), "w") as f:
             f.write(self.user_name + "\n")
-            f.write(self.user_password)
+            f.write(self.user_password + "\n")
+            f.write(str(self.press_average) + "\n")
+            f.write(str(self.interval_average) + "\n")
+            f.write(str(self.fly_average) + "\n")
+
+    def check_user(self):
+        with open("users/{}.txt".format(self.user_name)) as f:
+            lines = f.readlines()
+
+            
+            if (lines[1].split("\n")[0] == self.user_password):
+                return 1
+            else:
+                return 0
+
+
+flag = 0
+num = 0
+user = User()
 
 
 def check_username(username):
@@ -52,45 +70,77 @@ def check_username(username):
                 return 1
     return 0
 
-flag = 0
-num = 0
-user = User()
 
-
-def on_press(key):
-    global flag, num, user
+def create_user(user):
     temp = ""
 
-    if key == keyboard.Key.esc:
-        user.go_average()
-        print("\n", "Collected statistics:\n")
-        print("press time", "inter time", "fly time", sep="\t")
-        print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
+    user.go_average()
+    print("\n", "Collected statistics:\n")
+    print("press time", "inter time", "fly time", sep="\t")
+    print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
 
-        while check_username(temp) == 1:
+    while check_username(temp) == 1:
+        print("\nTo cancel, enter 0\n")
+        temp = input("Enter username: ")
+        if temp == "0":
+            user.to_empty()
+            return False 
+    else:
+        user.user_name = temp
+        temp = ""
+        while temp == "":
             print("\nTo cancel, enter 0")
-            temp = input("Enter username: ")
-
+            print("The password cannot be empty\n")
+            temp = input("Enter user password: ")
             if temp == "0":
                 user.to_empty()
-                return False 
-        else:
-            user.user_name = temp
-            temp = ""
-
-            while temp == "":
-                print("\nTo cancel, enter 0")
-                print("The password cannot be empty")
-                temp = input("Enter user password: ")
-
-                if temp == "0":
-                    user.to_empty()
-                    return False
-            else:
-                user.user_password = temp
-                user.save_user()
-
                 return False
+        else:
+            user.user_password = temp
+            user.save_user()
+            user.to_empty()
+            return False
+
+def login(user):
+    temp = input("Enter username: ")
+
+    while check_username(temp) == 0:
+        print("\nTo cancel, enter 0")
+        print("The user does not exist\n")
+        temp = input("Enter username: ")
+
+        if temp == "0":
+            user.to_empty()
+            return False
+
+    else:
+        user.user_name = temp
+        temp = ""
+        while temp == "":
+            print("\nTo cancel, enter 0")
+            print("The password cannot be empty\n")
+            temp = input("Enter user password: ")
+            if temp == "0":
+                user.to_empty()
+                return False
+        else:
+            user.user_password = temp
+            if user.check_user():
+                print("Welcome")
+            else:
+                print("Access denied")
+            user.to_empty()
+            return False
+
+def on_press(key):
+    global flag, num, user, mode
+    
+
+    if key == keyboard.Key.esc:
+        if mode == 0:
+            return create_user(user)
+        if mode == 1:
+            return login(user)
 
     else:
 
@@ -122,7 +172,7 @@ def on_release(key):
 
 
 def main():
-    global menu
+    global menu, mode
     print(menu)
 
     while 1:
@@ -130,17 +180,19 @@ def main():
 
         if key == "0":
             print("Enter ~50 symbols")
+            mode = 0
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
 
         if key == "1":
+            mode = 1
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
 
         else:
-            print("Unknown command\n")
+            print("\n")
             print(menu)
 
     
