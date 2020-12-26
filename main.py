@@ -20,6 +20,7 @@ class User:
     fly_average = 0
 
     def go_average(self):
+        #print(self.press)
         self.press_average = sum(self.press) / len(self.press)
         self.interval_average = sum(self.interval) / len(self.interval)
         self.fly_average = sum(self.fly) / len(self.fly)
@@ -32,6 +33,7 @@ class User:
         self.press_average = 0
         self.interval_average = 0
         self.fly_average = 0
+        
 
     def save_user(self):
         with open("users/{}.txt".format(self.user_name), "w") as f:
@@ -45,7 +47,6 @@ class User:
         with open("users/{}.txt".format(self.user_name)) as f:
             lines = f.readlines()
 
-            
             if (lines[1].split("\n")[0] == self.user_password):
                 return 1
             else:
@@ -72,6 +73,7 @@ def check_username(username):
 
 
 def create_user(user):
+    global num
     temp = ""
 
     user.go_average()
@@ -85,6 +87,7 @@ def create_user(user):
         temp = input("Enter username: ")
         if temp == "0":
             user.to_empty()
+            num = 0
             return False 
     else:
         user.user_name = temp
@@ -95,14 +98,18 @@ def create_user(user):
             temp = input("Enter user password: ")
             if temp == "0":
                 user.to_empty()
+                num = 0
                 return False
         else:
             user.user_password = temp
             user.save_user()
             user.to_empty()
+            num = 0
             return False
 
+
 def login(user):
+    global num
     temp = input("Enter username: ")
 
     while check_username(temp) == 0:
@@ -112,6 +119,7 @@ def login(user):
 
         if temp == "0":
             user.to_empty()
+            num = 0
             return False
 
     else:
@@ -123,6 +131,7 @@ def login(user):
             temp = input("Enter user password: ")
             if temp == "0":
                 user.to_empty()
+                num = 0
                 return False
         else:
             user.user_password = temp
@@ -131,15 +140,20 @@ def login(user):
             else:
                 print("Access denied")
             user.to_empty()
+            num = 0
             return False
 
 
 def test_mode(user):
+    global num
+
     user.go_average()
     print("\n", "Collected statistics:\n")
     print("press time", "inter time", "fly time", sep="\t")
     print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
-    
+    user.to_empty()
+    num = 0
+
     return False
 
 
@@ -164,8 +178,8 @@ def on_press(key):
             flag = 1
             answer = press_times(flag, num)
 
-            print("\npress time", "inter time", "fly time", "num", sep="\t")
-            print(*answer, num, sep="\t")
+            #print("\npress time", "inter time", "fly time", "num", sep="\t")
+            #print(*answer, num, sep="\t")
 
             if num != 1:
                 user.press.append(answer[0].seconds * 10**6 + answer[0].microseconds)
@@ -218,6 +232,4 @@ def main():
     
 
 if __name__ == "__main__":
-    user = User()
-
     main()
