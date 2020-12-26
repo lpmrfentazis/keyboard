@@ -1,16 +1,18 @@
 #!C:/Users/Admin/AppData/Local/Programs/Python/Python37/python.exe
 
+from config import *
 from tests import sleep, timeit, press_times
 from pynput import keyboard
-
 
 menu = "Menu:\n" + "0 - Create new user\n" + "1 - Login\n" + "2 - Test"
 mode = 3
 
 
 class User:
+    global dPress, dInter, dFly
     user_name = ""
     user_password = ""
+
     interval = []
     press = []
     fly = []
@@ -47,7 +49,8 @@ class User:
         with open("users/{}.txt".format(self.user_name)) as f:
             lines = f.readlines()
 
-            if (lines[1].split("\n")[0] == self.user_password) and (abs(self.press_average - float(lines[2].split("\n")[0])) < 10000):
+            if (lines[1].split("\n")[0] == self.user_password) and (abs(self.press_average - float(lines[2].split("\n")[0])) < dPress) and \
+                (abs(self.interval_average - float(lines[3].split("\n")[0])) < dInter) and (abs(self.fly_average - float(lines[4].split("\n")[0])) < dFly):
                 return 1
             else:
                 return 0
