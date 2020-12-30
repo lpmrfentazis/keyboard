@@ -1,3 +1,5 @@
-dPress = 10000
+dPress = 8000
 dInter = 10000
-dFly = 10000
+dFly = 15000
+
+

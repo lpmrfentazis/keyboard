@@ -80,9 +80,11 @@ def create_user(user):
     temp = ""
 
     user.go_average()
+
+    ### перенести в класс 
     print("\n", "Collected statistics:\n")
     print("press time", "inter time", "fly time", sep="\t")
-    print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
+    print(str(user.press_average) + " µs", str(user.interval_average) + " µs", str(user.fly_average) + " µs", sep="\t")
 
     while check_username(temp) == 1:
         print("The name is already in use")
@@ -148,21 +150,50 @@ def login(user):
 
 
 def test_mode(user):
+    from csv import writer
     global num
 
+    
     user.go_average()
     print("\n", "Collected statistics:\n")
     print("press time", "inter time", "fly time", sep="\t")
-    print(str(round(user.press_average, 1)) + " µs", str(round(user.interval_average, 1)) + " µs", str(round(user.fly_average, 1)) + " µs", sep="\t")
+    print(str(user.press_average) + " µs", str(user.interval_average) + " µs", str(user.fly_average) + " µs", sep="\t")
+
+    input()
+
+    with open("statistics/{}.csv".format(input("Enter sesion name: ")), "a", newline="") as f:
+        csv = writer(f, dialect = 'excel')
+        #csv.writerow([input(), input()])
+        csv.writerow([user.press_average, user.interval_average, user.fly_average])
+
     user.to_empty()
     num = 0
+    mode = 3
 
     return False
 
 
 def on_press(key):
-    global flag, num, user, mode
+    global flag, num, user
+
     
+
+    if flag == 1:
+        press_times(2, num)
+    else: 
+        num+=1
+        flag = 1
+        answer = press_times(flag, num)
+        #print("\npress time", "inter time", "fly time", "num", sep="\t")
+        #print(*answer, num, sep="\t")
+        if num != 1:
+            user.press.append(answer[0].seconds * 10**6 + answer[0].microseconds)
+            user.interval.append(answer[1].seconds * 10**6 + answer[1].microseconds)
+            user.fly.append(answer[2].seconds * 10**6 + answer[2].microseconds)
+            
+
+def on_release(key):
+    global flag, mode
 
     if key == keyboard.Key.esc:
         if mode == 0:
@@ -171,34 +202,11 @@ def on_press(key):
             return login(user)
         if mode == 2:
             return test_mode(user)
-
     else:
 
-        if flag == 1:
-            press_times(2, num)
-        else: 
-            num+=1
-            flag = 1
-            answer = press_times(flag, num)
+        flag = 0
+        press_times(0, num)
 
-            #print("\npress time", "inter time", "fly time", "num", sep="\t")
-            #print(*answer, num, sep="\t")
-
-            if num != 1:
-                user.press.append(answer[0].seconds * 10**6 + answer[0].microseconds)
-                user.interval.append(answer[1].seconds * 10**6 + answer[1].microseconds)
-                user.fly.append(answer[2].seconds * 10**6 + answer[2].microseconds)
-            
-
-def on_release(key):
-    global flag
-    flag = 0
-    press_times(0, num)
-    """
-    try:
-        print(key.char)
-    except:
-        pass"""
 
 
 def main():
@@ -209,21 +217,22 @@ def main():
         key = input()
 
         if key == "0":
-            print("Enter ~50 symbols")
             mode = 0
+            print("Print 'не выходи из комнаты, не совершай ошибки' and press <esc>")
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
 
         if key == "1":
-            print("Enter ~50 symbols")
             mode = 1
+            print("Print 'не выходи из комнаты, не совершай ошибки' and press <esc>")
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
 
         if key == "2":
             mode = 2
+            print("Print 'не выходи из комнаты, не совершай ошибки' and press <esc>")
             with keyboard.Listener(on_press= on_press,
                                    on_release= on_release) as listener:
                 listener.join()
